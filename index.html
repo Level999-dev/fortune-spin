@@ -2,396 +2,741 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fortune Spin — Scatter Edition</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Fortune Scatter — Tumble Edition</title>
   <style>
     :root {
-      --bg-dark: #070b14;
-      --bg-card: #111827;
-      --gold: #fbbf24;
-      --gold-glow: rgba(251, 191, 36, 0.45);
-      --text: #f8fafc;
+      --bg-top: #1e1b4b;
+      --bg-bot: #090d16;
+      --frame-gold: #f59e0b;
+      --frame-light: #fde68a;
+      --panel-bg: rgba(15, 23, 42, 0.88);
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     body {
       margin: 0;
       min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background: radial-gradient(circle at top, #172554 0%, var(--bg-dark) 72%);
-      color: var(--text);
-      font-family: system-ui, -apple-system, sans-serif;
-      overflow: hidden;
+      background: radial-gradient(circle at 50% 10%, #312e81 0%, var(--bg-top) 38%, var(--bg-bot) 85%);
+      color: #fff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
       user-select: none;
     }
 
-    .stage {
+    .app {
+      width: 100%;
+      max-width: 440px;
+      padding: 10px 10px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
       position: relative;
+    }
+
+    /* Header / Deity Crest */
+    .header {
+      text-align: center;
+      position: relative;
+      padding: 6px 8px 4px;
+    }
+
+    .title-badge {
+      display: inline-block;
+      background: linear-gradient(180deg, #b91c1c, #7f1d1d);
+      border: 2px solid var(--frame-gold);
+      border-radius: 999px;
+      padding: 4px 18px;
+      font-weight: 900;
+      font-size: 15px;
+      letter-spacing: 1px;
+      color: #fef08a;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+    }
+
+    .tumble-bar {
+      margin-top: 6px;
+      background: linear-gradient(90deg, transparent, rgba(30, 58, 138, 0.92) 20%, rgba(30, 58, 138, 0.92) 80%, transparent);
+      border-top: 1.5px solid var(--frame-gold);
+      border-bottom: 1.5px solid var(--frame-gold);
+      padding: 5px 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
-      padding: 16px;
     }
 
-    .hud {
-      display: flex;
-      gap: 12px;
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-
-    .pill {
-      background: rgba(17, 24, 39, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      padding: 6px 14px;
-      border-radius: 999px;
-    }
-
-    .pill span { color: var(--gold); }
-
-    canvas {
-      border-radius: 20px;
-      background: rgba(17, 24, 39, 0.55);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
-      touch-action: manipulation;
-    }
-
-    #banner {
-      position: fixed;
-      top: 12%;
-      left: 50%;
-      transform: translate(-50%, -20px) scale(0.9);
-      background: linear-gradient(135deg, #f59e0b, #ef4444);
-      color: #fff;
-      font-weight: 900;
-      font-size: 18px;
-      padding: 10px 22px;
-      border-radius: 999px;
-      box-shadow: 0 10px 30px rgba(239, 68, 68, 0.45);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease, transform 0.25s ease;
-      z-index: 10;
-      white-space: nowrap;
-    }
-
-    #banner.show {
-      opacity: 1;
-      transform: translate(-50%, 0) scale(1);
-    }
-
-    #spinBtn {
-      padding: 14px 32px;
-      font-size: 16px;
+    .tumble-label {
+      font-size: 11px;
       font-weight: 800;
-      letter-spacing: 1px;
-      border: 0;
-      border-radius: 14px;
-      background: linear-gradient(180deg, #fcd34d, #f59e0b);
-      color: #090d16;
-      box-shadow: 0 8px 24px var(--gold-glow);
-      cursor: pointer;
-      transition: transform 0.12s ease, filter 0.15s ease;
+      letter-spacing: 1.5px;
+      color: #fde047;
     }
 
-    #spinBtn:active { transform: scale(0.96); }
-    #spinBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .tumble-amount {
+      font-size: 20px;
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 2px 8px rgba(250, 204, 21, 0.5);
+    }
+
+    .free-spin-banner {
+      display: none;
+      background: linear-gradient(90deg, #7c2d12, #ea580c, #7c2d12);
+      border: 1.5px solid #fde047;
+      border-radius: 8px;
+      padding: 4px 10px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 900;
+      color: #fef9c3;
+      letter-spacing: 0.8px;
+      animation: pulseGlow 1.2s infinite alternate;
+    }
+
+    .free-spin-banner.active { display: block; }
+
+    @keyframes pulseGlow {
+      from { box-shadow: 0 0 6px rgba(251, 191, 36, 0.4); }
+      to   { box-shadow: 0 0 18px rgba(251, 191, 36, 0.9); }
+    }
+
+    /* 6x5 Reel Board */
+    .board-frame {
+      background: linear-gradient(180deg, #1e293b, #0f172a);
+      border: 3px solid var(--frame-gold);
+      border-radius: 14px;
+      padding: 6px;
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.75), inset 0 0 18px rgba(245, 158, 11, 0.25);
+      position: relative;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 4px;
+      background: rgba(9, 13, 22, 0.75);
+      border-radius: 9px;
+      padding: 4px;
+    }
+
+    .cell {
+      aspect-ratio: 1 / 1.04;
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9));
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .cell.drop {
+      animation: dropIn 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes dropIn {
+      from { transform: translateY(-28px) scale(0.85); opacity: 0.2; }
+      to   { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .cell.win {
+      border-color: #fde047;
+      box-shadow: 0 0 14px rgba(253, 224, 71, 0.85), inset 0 0 10px rgba(253, 224, 71, 0.5);
+      animation: winPop 0.42s ease forwards;
+      z-index: 2;
+    }
+
+    @keyframes winPop {
+      0%   { transform: scale(1); }
+      45%  { transform: scale(1.16); filter: brightness(1.4); }
+      100% { transform: scale(0.15); opacity: 0; }
+    }
+
+    .sym-icon {
+      font-size: 24px;
+      line-height: 1;
+      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.7));
+    }
+
+    .sym-tag {
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: 0.3px;
+      margin-top: 2px;
+      padding: 1px 4px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    /* Multiplier Hex Badge */
+    .mult-badge {
+      width: 84%;
+      height: 76%;
+      clip-path: polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0% 50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+      color: #fff;
+      text-shadow: 0 1px 3px #000;
+      box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.45);
+    }
+
+    .mult-low  { background: linear-gradient(135deg, #2563eb, #06b6d4); }
+    .mult-mid  { background: linear-gradient(135deg, #7c3aed, #db2777); }
+    .mult-high { background: linear-gradient(135deg, #dc2626, #f59e0b); }
+
+    /* Scatter & Super Scatter Styling */
+    .cell.is-scatter {
+      background: radial-gradient(circle, rgba(245, 158, 11, 0.38), rgba(15, 23, 42, 0.95));
+      border: 1.5px solid #fbbf24;
+    }
+
+    .cell.is-super {
+      background: radial-gradient(circle, rgba(239, 68, 68, 0.55), rgba(120, 53, 15, 0.95));
+      border: 1.5px solid #fde047;
+      box-shadow: inset 0 0 10px rgba(253, 224, 71, 0.5);
+    }
+
+    .tag-scatter { background: #b45309; color: #fef08a; }
+    .tag-super   { background: linear-gradient(90deg, #dc2626, #f59e0b); color: #fff; }
+
+    .ticker-strip {
+      margin-top: 5px;
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: 8px;
+      padding: 4px 8px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fde68a;
+      min-height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Bottom Arcade Control Deck */
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 6px;
+    }
+
+    .ctrl-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ctrl-group.right { justify-content: flex-end; }
+
+    .round-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid var(--frame-gold);
+      background: radial-gradient(circle at 30% 30%, #334155, #0f172a);
+      color: #fde047;
+      font-weight: 900;
+      font-size: 15px;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .round-btn.active {
+      background: radial-gradient(circle, #f59e0b, #b45309);
+      color: #090d16;
+    }
+
+    .round-btn:active { transform: scale(0.93); }
+
+    .spin-btn {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      border: 4px solid #fde047;
+      background: radial-gradient(circle at 35% 30%, #38bdf8, #1d4ed8 65%, #1e1b4b);
+      color: #fff;
+      font-size: 28px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 0 22px rgba(56, 189, 248, 0.6), inset 0 0 12px rgba(255, 255, 255, 0.45);
+      display: grid;
+      place-items: center;
+      transition: transform 0.12s ease;
+    }
+
+    .spin-btn:active { transform: scale(0.93); }
+    .spin-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .status-bar {
+      background: var(--panel-bg);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      border-radius: 999px;
+      padding: 6px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .status-bar span { color: #fde047; }
+
+    /* Big Win / Scatter Trigger Overlay */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.82);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      z-index: 50;
+    }
+
+    .overlay.show { display: flex; }
+
+    .overlay-card {
+      background: radial-gradient(circle at top, #7f1d1d, #1e1b4b);
+      border: 3px solid #fde047;
+      border-radius: 20px;
+      padding: 24px 20px;
+      max-width: 340px;
+      width: 100%;
+      box-shadow: 0 0 40px rgba(251, 191, 36, 0.6);
+    }
+
+    .overlay-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #fde047;
+      margin-bottom: 8px;
+    }
+
+    .overlay-sub {
+      font-size: 15px;
+      color: #f8fafc;
+      margin-bottom: 18px;
+      line-height: 1.4;
+    }
+
+    .overlay-btn {
+      background: linear-gradient(180deg, #fde047, #f59e0b);
+      color: #090d16;
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-weight: 900;
+      font-size: 15px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <div id="banner">SCATTER BURST! +250 BONUS</div>
-
-  <div class="stage">
-    <div class="hud">
-      <div class="pill">SCORE: <span id="scoreVal">0</span></div>
-      <div class="pill">SCATTERS: <span id="scatterVal">0</span></div>
+  <div class="app">
+    <div class="header">
+      <div class="title-badge">⚡ FORTUNE SCATTER ⚡</div>
+      <div class="tumble-bar">
+        <div class="tumble-label">TUMBLE WIN</div>
+        <div class="tumble-amount" id="tumbleWin">₱ 0.00</div>
+      </div>
     </div>
 
-    <canvas id="game"></canvas>
-    <button id="spinBtn">SPIN &amp; SCATTER</button>
+    <div class="free-spin-banner" id="fsBanner">
+      🔥 FREE SPINS ACTIVE: <span id="fsLeft">0</span> LEFT | TOTAL MULT: <span id="fsMult">1X</span>
+    </div>
+
+    <div class="board-frame">
+      <div class="grid" id="grid"></div>
+      <div class="ticker-strip" id="ticker">Land 8+ matching symbols anywhere • 4+ Scatters trigger Free Spins!</div>
+    </div>
+
+    <div class="controls">
+      <div class="ctrl-group">
+        <button class="round-btn" id="betDown" title="Decrease Bet">−</button>
+        <button class="round-btn" id="betUp" title="Increase Bet">+</button>
+      </div>
+
+      <button class="spin-btn" id="spinBtn" title="Spin">↻</button>
+
+      <div class="ctrl-group right">
+        <button class="round-btn" id="autoBtn" title="Autoplay">▶</button>
+        <button class="round-btn" id="turboBtn" title="Turbo Mode">⚡</button>
+      </div>
+    </div>
+
+    <div class="status-bar">
+      <div>BET: <span id="betVal">₱ 10.00</span></div>
+      <div>FREE SPINS: <span id="fsBadge">0</span></div>
+      <div>BALANCE: <span id="balVal">₱ 1,000.00</span></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="overlay-card">
+      <div class="overlay-title" id="ovTitle">SUPER SCATTER!</div>
+      <div class="overlay-sub" id="ovSub">You triggered 10 Free Spins!</div>
+      <button class="overlay-btn" id="ovClose">COLLECT &amp; PLAY</button>
+    </div>
   </div>
 
   <script>
-    const canvas = document.getElementById("game");
-    const ctx = canvas.getContext("2d");
-    const spinBtn = document.getElementById("spinBtn");
-    const banner = document.getElementById("banner");
-    const scoreEl = document.getElementById("scoreVal");
-    const scatterEl = document.getElementById("scatterVal");
+    const COLS = 6;
+    const ROWS = 5;
 
-    const size = Math.min(window.innerWidth - 24, 380);
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = size * dpr;
-    canvas.height = size * dpr;
-    canvas.style.width = `${size}px`;
-    canvas.style.height = `${size}px`;
-    ctx.scale(dpr, dpr);
-
-    const cx = size / 2;
-    const cy = size / 2;
-    const radius = size * 0.36;
-
-    const slices = [
-      { label: "SCATTER", pts: 250, color: "#e11d48", isScatter: true },
-      { label: "100",     pts: 100, color: "#2563eb", isScatter: false },
-      { label: "BONUS",   pts: 200, color: "#059669", isScatter: true },
-      { label: "50",      pts: 50,  color: "#d97706", isScatter: false },
-      { label: "SCATTER", pts: 250, color: "#7c3aed", isScatter: true },
-      { label: "500",     pts: 500, color: "#db2777", isScatter: false }
+    // Regular pay-anywhere symbols (8+ on screen pays)
+    const SYMBOLS = [
+      { id: "pebble",  icon: "🪨", weight: 24, basePay: 0.25 },
+      { id: "emerald", icon: "💚", weight: 22, basePay: 0.40 },
+      { id: "sapphire",icon: "💎", weight: 18, basePay: 0.65 },
+      { id: "chalice", icon: "🏆", weight: 14, basePay: 1.00 },
+      { id: "ring",    icon: "💍", weight: 11, basePay: 1.50 },
+      { id: "sun",     icon: "☀️", weight: 8,  basePay: 2.50 },
+      { id: "crown",   icon: "👑", weight: 6,  basePay: 4.00 }
     ];
 
-    const scatterPalette = ["#fde047", "#38bdf8", "#fb7185", "#34d399", "#c084fc"];
-    const shapes = ["star", "diamond", "orb"];
+    const MULTIPLIERS = [2, 5, 10, 20, 50, 100, 500];
+    const BET_STEPS = [5, 10, 20, 50, 100];
 
-    let angle = 0;
-    let angularVel = 0;
-    let spinning = false;
-    let score = 0;
-    let scatterCount = 0;
-    let screenShake = 0;
-    let bannerTimer = null;
+    let betIndex = 1; // ₱10
+    let balance = 1000.00;
+    let freeSpins = 0;
+    let globalFreeSpinMult = 0;
+    let busy = false;
+    let turbo = false;
+    let autoplay = false;
 
-    // Scatter particles & shockwaves
-    let scatterItems = [];
-    let shockwaves = [];
+    // 6 columns x 5 rows board
+    let board = Array.from({ length: COLS }, () => Array(ROWS).fill(null));
 
-    function showBanner(text) {
-      banner.textContent = text;
-      banner.classList.add("show");
-      clearTimeout(bannerTimer);
-      bannerTimer = setTimeout(() => banner.classList.remove("show"), 1800);
+    const gridEl = document.getElementById("grid");
+    const tumbleWinEl = document.getElementById("tumbleWin");
+    const tickerEl = document.getElementById("ticker");
+    const betValEl = document.getElementById("betVal");
+    const balValEl = document.getElementById("balVal");
+    const fsBadgeEl = document.getElementById("fsBadge");
+    const fsBannerEl = document.getElementById("fsBanner");
+    const fsLeftEl = document.getElementById("fsLeft");
+    const fsMultEl = document.getElementById("fsMult");
+    const spinBtn = document.getElementById("spinBtn");
+    const autoBtn = document.getElementById("autoBtn");
+    const turboBtn = document.getElementById("turboBtn");
+    const overlayEl = document.getElementById("overlay");
+    const ovTitleEl = document.getElementById("ovTitle");
+    const ovSubEl = document.getElementById("ovSub");
+
+    const wait = (ms) => new Promise(res => setTimeout(res, turbo ? ms * 0.42 : ms));
+
+    function fmt(num) {
+      return "₱ " + num.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    function triggerScatter(originX, originY, intense = false) {
-      const count = intense ? 75 : 32;
-      screenShake = intense ? 11 : 4;
+    function updateHUD() {
+      betValEl.textContent = fmt(BET_STEPS[betIndex]);
+      balValEl.textContent = fmt(balance);
+      fsBadgeEl.textContent = freeSpins;
 
-      shockwaves.push({
-        x: originX,
-        y: originY,
-        r: 12,
-        maxR: intense ? radius * 1.45 : radius * 0.9,
-        alpha: 0.85,
-        color: intense ? "#fbbf24" : "#38bdf8"
-      });
-
-      for (let i = 0; i < count; i++) {
-        const theta = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.35;
-        const speed = intense ? 3.5 + Math.random() * 7.5 : 2 + Math.random() * 4.5;
-        scatterItems.push({
-          x: originX,
-          y: originY,
-          vx: Math.cos(theta) * speed,
-          vy: Math.sin(theta) * speed - (intense ? 2.2 : 1.0),
-          drag: 0.975,
-          gravity: 0.14,
-          rot: Math.random() * Math.PI * 2,
-          vRot: (Math.random() - 0.5) * 0.28,
-          scale: (intense ? 0.85 : 0.6) + Math.random() * 0.75,
-          color: scatterPalette[i % scatterPalette.length],
-          shape: shapes[i % shapes.length],
-          life: 1,
-          decay: 0.011 + Math.random() * 0.01
-        });
-      }
-    }
-
-    function drawShape(item) {
-      ctx.save();
-      ctx.translate(item.x, item.y);
-      ctx.rotate(item.rot);
-      ctx.scale(item.scale, item.scale);
-      ctx.globalAlpha = Math.max(0, item.life);
-      ctx.fillStyle = item.color;
-      ctx.shadowColor = item.color;
-      ctx.shadowBlur = 10;
-
-      if (item.shape === "diamond") {
-        ctx.beginPath();
-        ctx.moveTo(0, -10);
-        ctx.lineTo(7, 0);
-        ctx.lineTo(0, 10);
-        ctx.lineTo(-7, 0);
-        ctx.closePath();
-        ctx.fill();
-      } else if (item.shape === "star") {
-        ctx.beginPath();
-        for (let p = 0; p < 10; p++) {
-          const rad = p % 2 === 0 ? 10 : 4.5;
-          const a = (p * Math.PI) / 5 - Math.PI / 2;
-          const px = Math.cos(a) * rad;
-          const py = Math.sin(a) * rad;
-          if (p === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
-        }
-        ctx.closePath();
-        ctx.fill();
+      if (freeSpins > 0) {
+        fsBannerEl.classList.add("active");
+        fsLeftEl.textContent = freeSpins;
+        fsMultEl.textContent = `${Math.max(1, globalFreeSpinMult)}X`;
       } else {
-        ctx.beginPath();
-        ctx.arc(0, 0, 6.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      ctx.restore();
-    }
-
-    function getWinningSlice() {
-      // Top pointer is at -PI/2 (or 3*PI/2)
-      const pointerAngle = (Math.PI * 1.5 - angle) % (Math.PI * 2);
-      const normalized = (pointerAngle + Math.PI * 2) % (Math.PI * 2);
-      const arc = (Math.PI * 2) / slices.length;
-      const idx = Math.floor(normalized / arc) % slices.length;
-      return slices[idx];
-    }
-
-    function evaluateLanding() {
-      const hit = getWinningSlice();
-      score += hit.pts;
-      scoreEl.textContent = score;
-
-      if (hit.isScatter) {
-        scatterCount += 1;
-        scatterEl.textContent = scatterCount;
-        triggerScatter(cx, cy, true);
-        showBanner(`${hit.label} BURST! +${hit.pts} PTS`);
-      } else {
-        triggerScatter(cx, cy - radius * 0.45, false);
-        showBanner(`LANDED ON ${hit.label} (+${hit.pts})`);
+        fsBannerEl.classList.remove("active");
       }
     }
 
-    function drawWheel() {
-      const arc = (Math.PI * 2) / slices.length;
+    function randomCellItem() {
+      const roll = Math.random() * 100;
 
-      ctx.save();
-      ctx.translate(cx, cy);
-      ctx.rotate(angle);
+      // ~4.5% Scatter, ~2.2% Super Scatter
+      if (roll < 2.2) return { type: "super", icon: "🔥", label: "SUPER SCATTER" };
+      if (roll < 6.7) return { type: "scatter", icon: "🧙‍♂️", label: "SCATTER" };
 
-      slices.forEach((slice, i) => {
-        const start = i * arc;
-        const end = start + arc;
-
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.arc(0, 0, radius, start, end);
-        ctx.closePath();
-        ctx.fillStyle = slice.color;
-        ctx.fill();
-
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "rgba(255,255,255,0.22)";
-        ctx.stroke();
-
-        ctx.save();
-        ctx.rotate(start + arc / 2);
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "800 13px system-ui, sans-serif";
-        ctx.textAlign = "right";
-        ctx.textBaseline = "middle";
-        ctx.shadowColor = "rgba(0,0,0,0.5)";
-        ctx.shadowBlur = 4;
-        ctx.fillText(slice.label, radius - 14, 0);
-        ctx.restore();
-      });
-
-      // Center hub
-      ctx.beginPath();
-      ctx.arc(0, 0, 22, 0, Math.PI * 2);
-      ctx.fillStyle = "#0f172a";
-      ctx.fill();
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = "#fbbf24";
-      ctx.stroke();
-
-      ctx.restore();
-
-      // Top indicator arrow
-      ctx.save();
-      ctx.fillStyle = "#fbbf24";
-      ctx.shadowColor = "rgba(0,0,0,0.6)";
-      ctx.shadowBlur = 8;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy - radius + 12);
-      ctx.lineTo(cx - 13, cy - radius - 14);
-      ctx.lineTo(cx + 13, cy - radius - 14);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
-    }
-
-    function updateAndDrawEffects() {
-      // Shockwaves
-      shockwaves.forEach(w => {
-        w.r += (w.maxR - w.r) * 0.12;
-        w.alpha *= 0.92;
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(w.x, w.y, w.r, 0, Math.PI * 2);
-        ctx.strokeStyle = w.color;
-        ctx.globalAlpha = Math.max(0, w.alpha);
-        ctx.lineWidth = 3;
-        ctx.stroke();
-        ctx.restore();
-      });
-      shockwaves = shockwaves.filter(w => w.alpha > 0.03);
-
-      // Scatter symbols
-      scatterItems.forEach(item => {
-        item.vx *= item.drag;
-        item.vy = item.vy * item.drag + item.gravity;
-        item.x += item.vx;
-        item.y += item.vy;
-        item.rot += item.vRot;
-        item.life -= item.decay;
-        drawShape(item);
-      });
-      scatterItems = scatterItems.filter(item => item.life > 0);
-    }
-
-    function loop() {
-      ctx.clearRect(0, 0, size, size);
-
-      ctx.save();
-      if (screenShake > 0.2) {
-        const sx = (Math.random() - 0.5) * screenShake;
-        const sy = (Math.random() - 0.5) * screenShake;
-        ctx.translate(sx, sy);
-        screenShake *= 0.86;
-      } else {
-        screenShake = 0;
+      // ~7.5% Multiplier orb
+      if (roll < 14.2) {
+        const mRoll = Math.random();
+        let mult = 2;
+        if (mRoll > 0.97) mult = 500;
+        else if (mRoll > 0.91) mult = 100;
+        else if (mRoll > 0.80) mult = 50;
+        else if (mRoll > 0.62) mult = 20;
+        else if (mRoll > 0.40) mult = 10;
+        else if (mRoll > 0.18) mult = 5;
+        return { type: "mult", value: mult };
       }
 
-      drawWheel();
-      updateAndDrawEffects();
-      ctx.restore();
+      // Weighted standard symbol
+      const totalW = SYMBOLS.reduce((s, item) => s + item.weight, 0);
+      let pick = Math.random() * totalW;
+      for (const sym of SYMBOLS) {
+        pick -= sym.weight;
+        if (pick <= 0) return { type: "sym", ...sym };
+      }
+      return { type: "sym", ...SYMBOLS[0] };
+    }
 
-      if (spinning) {
-        angle = (angle + angularVel) % (Math.PI * 2);
-        angularVel *= 0.986;
+    function renderBoard(winCoords = new Set(), dropCols = new Set()) {
+      gridEl.innerHTML = "";
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          const item = board[c][r];
+          const cell = document.createElement("div");
+          cell.className = "cell";
 
-        if (angularVel < 0.0035) {
-          spinning = false;
-          angularVel = 0;
-          spinBtn.disabled = false;
-          evaluateLanding();
+          const key = `${c},${r}`;
+          if (winCoords.has(key)) cell.classList.add("win");
+          else if (dropCols.has(c)) cell.classList.add("drop");
+
+          if (!item) {
+            gridEl.appendChild(cell);
+            continue;
+          }
+
+          if (item.type === "sym") {
+            cell.innerHTML = `<div class="sym-icon">${item.icon}</div>`;
+          } else if (item.type === "mult") {
+            const tier = item.value >= 100 ? "mult-high" : item.value >= 20 ? "mult-mid" : "mult-low";
+            cell.innerHTML = `<div class="mult-badge ${tier}">${item.value}X</div>`;
+          } else if (item.type === "scatter") {
+            cell.classList.add("is-scatter");
+            cell.innerHTML = `<div class="sym-icon">${item.icon}</div><div class="sym-tag tag-scatter">SCATTER</div>`;
+          } else if (item.type === "super") {
+            cell.classList.add("is-super");
+            cell.innerHTML = `<div class="sym-icon">${item.icon}</div><div class="sym-tag tag-super">SUPER SCATTER</div>`;
+          }
+
+          gridEl.appendChild(cell);
         }
       }
-
-      requestAnimationFrame(loop);
     }
 
-    spinBtn.addEventListener("click", () => {
-      if (spinning) return;
-      spinning = true;
+    function showModal(title, sub) {
+      return new Promise(resolve => {
+        ovTitleEl.textContent = title;
+        ovSubEl.textContent = sub;
+        overlayEl.classList.add("show");
+        document.getElementById("ovClose").onclick = () => {
+          overlayEl.classList.remove("show");
+          resolve();
+        };
+      });
+    }
+
+    async function spin() {
+      if (busy) return;
+      const bet = BET_STEPS[betIndex];
+
+      if (freeSpins === 0 && balance < bet) {
+        tickerEl.textContent = "Not enough balance! Lower your bet or refresh.";
+        autoplay = false;
+        autoBtn.classList.remove("active");
+        return;
+      }
+
+      busy = true;
       spinBtn.disabled = true;
-      angularVel = 0.34 + Math.random() * 0.18;
+
+      if (freeSpins > 0) {
+        freeSpins--;
+        tickerEl.textContent = `Free Spin in progress... (${freeSpins} remaining)`;
+      } else {
+        balance -= bet;
+        globalFreeSpinMult = 0;
+        tickerEl.textContent = "Spinning reels...";
+      }
+
+      tumbleWinEl.textContent = fmt(0);
+      updateHUD();
+
+      // Fill fresh 6x5 board
+      for (let c = 0; c < COLS; c++) {
+        for (let r = 0; r < ROWS; r++) {
+          board[c][r] = randomCellItem();
+        }
+      }
+      renderBoard(new Set(), new Set([0, 1, 2, 3, 4, 5]));
+      await wait(340);
+
+      let sequenceWin = 0;
+      let tumbleCount = 0;
+
+      // Cascade / Tumble loop
+      while (true) {
+        const counts = {};
+        const positions = {};
+
+        for (let c = 0; c < COLS; c++) {
+          for (let r = 0; r < ROWS; r++) {
+            const cell = board[c][r];
+            if (cell && cell.type === "sym") {
+              counts[cell.id] = (counts[cell.id] || 0) + 1;
+              if (!positions[cell.id]) positions[cell.id] = [];
+              positions[cell.id].push(`${c},${r}`);
+            }
+          }
+        }
+
+        // Pay-Anywhere rule: 8 or more matching symbols anywhere on grid
+        const winningIds = Object.keys(counts).filter(id => counts[id] >= 8);
+        if (winningIds.length === 0) break;
+
+        tumbleCount++;
+        const winCoords = new Set();
+        let stepPayout = 0;
+
+        for (const id of winningIds) {
+          const symObj = SYMBOLS.find(s => s.id === id);
+          const count = counts[id];
+          const clusterBonus = count >= 12 ? 3 : count >= 10 ? 1.8 : 1;
+          stepPayout += bet * symObj.basePay * clusterBonus;
+          positions[id].forEach(coord => winCoords.add(coord));
+        }
+
+        sequenceWin += stepPayout;
+        tumbleWinEl.textContent = fmt(sequenceWin);
+        tickerEl.textContent = `TUMBLE #${tumbleCount}! ${winningIds.length} cluster(s) hit → +${fmt(stepPayout)}`;
+
+        renderBoard(winCoords, new Set());
+        await wait(440);
+
+        // Remove winning symbols & drop remaining down
+        for (let c = 0; c < COLS; c++) {
+          const surviving = [];
+          for (let r = 0; r < ROWS; r++) {
+            if (!winCoords.has(`${c},${r}`)) {
+              surviving.push(board[c][r]);
+            }
+          }
+          const missing = ROWS - surviving.length;
+          const fresh = Array.from({ length: missing }, () => randomCellItem());
+          board[c] = [...fresh, ...surviving];
+        }
+
+        renderBoard(new Set(), new Set([0, 1, 2, 3, 4, 5]));
+        await wait(340);
+      }
+
+      // Sum all visible Multiplier orbs after tumbles finish
+      let boardMult = 0;
+      for (let c = 0; c < COLS; c++) {
+        for (let r = 0; r < ROWS; r++) {
+          if (board[c][r] && board[c][r].type === "mult") {
+            boardMult += board[c][r].value;
+          }
+        }
+      }
+
+      if (sequenceWin > 0) {
+        let finalWin = sequenceWin;
+        if (boardMult > 0) {
+          if (freeSpins > 0 || globalFreeSpinMult > 0) {
+            globalFreeSpinMult += boardMult;
+            finalWin = sequenceWin * globalFreeSpinMult;
+            tickerEl.textContent = `⚡ TOTAL MULTIPLIER ${globalFreeSpinMult}X APPLIED! WON ${fmt(finalWin)}!`;
+          } else {
+            finalWin = sequenceWin * boardMult;
+            tickerEl.textContent = `⚡ ${boardMult}X MULTIPLIER HIT! WON ${fmt(finalWin)}!`;
+          }
+        } else if (globalFreeSpinMult > 0) {
+          finalWin = sequenceWin * globalFreeSpinMult;
+        }
+
+        tumbleWinEl.textContent = fmt(finalWin);
+        balance += finalWin;
+        updateHUD();
+      }
+
+      // Check Scatters & Super Scatters (4+ triggers Free Spins)
+      let normalScatters = 0;
+      let superScatters = 0;
+      for (let c = 0; c < COLS; c++) {
+        for (let r = 0; r < ROWS; r++) {
+          const item = board[c][r];
+          if (item?.type === "scatter") normalScatters++;
+          if (item?.type === "super") superScatters++;
+        }
+      }
+
+      const totalScatters = normalScatters + superScatters;
+      if (totalScatters >= 4) {
+        const awardedSpins = superScatters >= 2 ? 15 : 10;
+        const instantBonus = superScatters > 0 ? bet * (superScatters * 10) : bet * 3;
+        freeSpins += awardedSpins;
+        balance += instantBonus;
+        updateHUD();
+
+        await showModal(
+          superScatters > 0 ? "🔥 SUPER SCATTER TRIGGER! 🔥" : "⚡ SCATTER BONUS! ⚡",
+          `${totalScatters} Scatters landed (${superScatters} Super)! You won ${awardedSpins} Free Spins + ${fmt(instantBonus)} instant bonus!`
+        );
+      } else if (sequenceWin === 0) {
+        tickerEl.textContent = totalScatters > 0
+          ? `${totalScatters} Scatter(s) landed — need 4+ for Free Spins!`
+          : "Tap Spin to drop symbols!";
+      }
+
+      busy = false;
+      spinBtn.disabled = false;
+      updateHUD();
+
+      if (autoplay || freeSpins > 0) {
+        await wait(550);
+        if (autoplay || freeSpins > 0) spin();
+      }
+    }
+
+    // Button listeners
+    spinBtn.addEventListener("click", spin);
+
+    document.getElementById("betDown").addEventListener("click", () => {
+      if (busy || freeSpins > 0) return;
+      betIndex = Math.max(0, betIndex - 1);
+      updateHUD();
     });
 
-    loop();
+    document.getElementById("betUp").addEventListener("click", () => {
+      if (busy || freeSpins > 0) return;
+      betIndex = Math.min(BET_STEPS.length - 1, betIndex + 1);
+      updateHUD();
+    });
+
+    turboBtn.addEventListener("click", () => {
+      turbo = !turbo;
+      turboBtn.classList.toggle("active", turbo);
+      tickerEl.textContent = turbo ? "⚡ Turbo Speed ON" : "Normal Speed";
+    });
+
+    autoBtn.addEventListener("click", () => {
+      autoplay = !autoplay;
+      autoBtn.classList.toggle("active", autoplay);
+      if (autoplay && !busy) spin();
+    });
+
+    // Initial board preview
+    for (let c = 0; c < COLS; c++) {
+      for (let r = 0; r < ROWS; r++) {
+        board[c][r] = randomCellItem();
+      }
+    }
+    renderBoard();
+    updateHUD();
   </script>
 </body>
 </html>
